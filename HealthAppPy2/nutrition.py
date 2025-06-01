@@ -75,7 +75,7 @@ class Nutrition:
        
         values = [f"'{self.user_email}'", f"'{date.today()}'", f"'{product}'", round(float(product_mass), 2), round((proteins / 100) * float(product_mass), 2), round((fats / 100) * float(product_mass), 2), round((carbohydrates / 100) * float(product_mass), 2), round((kcal / 100) * float(product_mass), 2)]
     
-        sql = f"INSERT INTO {self.nutrition_table_name} ({', '.join(self.nutrition_columns)}) VALUES({', '.join(str(v) for v in values)});"
+        sql = f"INSERT INTO {self.nutrition_table_name} ({", ".join(self.nutrition_columns)}) VALUES({", ".join(str(v) for v in values)});"
         self.db.insert_data(self.db_name, sql)
     
         self.update_consumed_table(values.copy())
@@ -113,7 +113,7 @@ class Nutrition:
             
             self.db.update_data(self.db_name, self.consumed_table_name, self.consumed_columns[2:7], nutrition_values[3:8], f"USER = '{self.user_email}' AND DATE = '{nutrition_last_date[0][0]}'")
         else:
-            insert_sql = f"INSERT INTO {self.consumed_table_name} ({', '.join(self.consumed_columns)}) VALUES ({', '.join(str(v) for v in (nutrition_values[:2] + nutrition_values[3:]))}, -1, -1, -1, -1);"
+            insert_sql = f"INSERT INTO {self.consumed_table_name} ({", ".join(self.consumed_columns)}) VALUES ({", ".join(str(v) for v in (nutrition_values[:2] + nutrition_values[3:]))}, -1, -1, -1, -1);"
             self.db.insert_data(self.db_name, insert_sql)
         
     def show_today_consumption(self):
