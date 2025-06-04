@@ -1,66 +1,46 @@
 import datetime
 from nutrition import Nutrition
 
-# user_table_sql = """CREATE TABLE IF NOT EXISTS USERS (
-#                             EMAIL TEXT PRIMARY KEY,
-#                             PASSWORD TEXT NOT NULL,
-#                             NAME TEXT NOT NULL,
-#                             AVATAR_IMAGE BLOB NOT NULL,
-#                             BIRTH_DATE DATE NOT NULL,
-#                             WEIGHT INTEGER NOT NULL,
-#                             HEIGHT INT NOT NULL,
-#                             SEX TEXT NOT NULL,
-#                             GOAL TEXT NOT NULL,
-#                             BJV_MODE TEXT NOT NULL,
-#                             ACTIVITY_FACTOR REAL NOT NULL
-#                             );"""
-
 class User:
-    def __init__(self, name, email, birth_date, weight, height, sex, goal, activity_factor):
+    def __init__(self, name, email, password, avatar_image, birth_date, weight, height, sex, goal, activity_factor, bjv_mode):
         self.name = name
         self.email = email
+        self.password = password
+        self.avatar_image = avatar_image
         self.birth_date = birth_date  # у форматі YYYY-MM-DD
         self.weight = weight
         self.height = height
         self.sex = sex  # 'M' або 'F'
-        self.goal = goal  # 'lose', 'gain', 'maintain'
+        self.goal = goal  
         self.activity_factor = float(activity_factor) # 1.2  1.55  1.9
+        self.bjv_mode = bjv_mode
+        
     def get_age(self):
         today = datetime.date.today()
         birth = datetime.datetime.strptime(self.birth_date, "%Y-%m-%d").date()
         return today.year - birth.year - ((today.month, today.day) < (birth.month, birth.day))
 
-    def update_profile(self):
-        print("\n--- Update Profile ---")
-        self.name = input(f"Name [{self.name}]: ") or self.name
-        self.email = input(f"Email [{self.email}]: ") or self.email
-        bd = input(f"Birth Date [{self.birth_date}] (YYYY-MM-DD): ") or self.birth_date
-        self.birth_date = bd
-        self.weight = int(input(f"Weight [{self.weight} kg]: ") or self.weight)
-        self.height = int(input(f"Height [{self.height} cm]: ") or self.height)
-        self.sex = input(f"Sex (M/F) [{self.sex}]: ") or self.sex
-        self.goal = input(f"Goal (lose/gain/maintain) [{self.goal}]: ") or self.goal
-        self.activity_factor = input(f"Level of Activity (1.2/1.55/1.9) [{self.activity_factor}]: ") or self.activity_factor
-        print("Profile updated successfully.\n")
-
     def to_dict(self):
         return {
             "name": self.name,
             "email": self.email,
+            "password": self.password,
+            "avatar_image": self.avatar_image,
             "birth_date": self.birth_date,
             "weight": self.weight,
             "height": self.height,
             "sex": self.sex,
             "goal": self.goal,
-            "activity_factor": self.activity_factor
+            "activity_factor": self.activity_factor,
+            "bjv_mode": self.bjv_mode
         }
 
     @staticmethod
     def from_dict(data):
         return User(
-            data["name"], data["email"], data["birth_date"],
+            data["name"], data["email"], data["password"], data["avatar_image"], data["birth_date"],
             data["weight"], data["height"], data["sex"], data["goal"],
-            data["activity_factor"]
+            data["activity_factor"], data["bjv_mode"]
         )
 
     def display_profile(self):
@@ -73,3 +53,4 @@ class User:
         print(f"Sex: {self.sex}")
         print(f"Goal: {self.goal}\n")
         print(f"Activity factor: {self.activity_factor}\n")
+        

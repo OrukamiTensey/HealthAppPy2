@@ -1,11 +1,15 @@
 import customtkinter as ctk
+from DB_control import DBControl
 from sidebar import Sidebar
 from bmi_calculator import BMICalculator
 from nutrition_window import NutritionWindow
 from user import User
 from calorie_counting import CalorieCounting
+from profile_window import ProfileWindow
+from registration import Registration
+from reg_window import RegistrationWindow
 
-class CalorieApp(ctk.CTk):
+class App(ctk.CTk):
     def __init__(self):
         super().__init__()
         self.title("Calorie Tracker")
@@ -14,23 +18,31 @@ class CalorieApp(ctk.CTk):
 
         self.sidebar = Sidebar(self, self.switch_window)
         self.sidebar.pack(side="left", fill="y")
+        self.reg = Registration()
+        user = self.reg.load_or_register_user()
+        
+        if user == 0:
+            # Якщо користувача немає – показуємо вікно реєстрації
+            self.windows = {
+                "Registration": RegistrationWindow(self, 0)
+            }
 
-        user = User(
-            name="TestUser",
-            email="TestUser",
-            birth_date="2006-05-12",
-            weight=70,
-            height=175,
-            sex='M',
-            goal='M',
-            activity_factor=1.2
-        )
+            # Ховаємо sidebar поки користувач не зареєструється
+            self.sidebar.pack_forget()
+
+            self.current_window = "Registration"
+            self.windows["Registration"].place(x=0, y=0, relwidth=1, relheight=1)
+            self.windows["Registration"].show()
+            return
+            
 
         self.calorie_counter = CalorieCounting(user)
 
         self.windows = {
             "BMI": BMICalculator(self, user),
-            "Nutrition": NutritionWindow(self, user)
+            "Nutrition": NutritionWindow(self, user),
+            "Profile": ProfileWindow(self, user, 1),
+            "Registration": RegistrationWindow(self, 1)
         }
 
         for window in self.windows.values():
@@ -38,7 +50,8 @@ class CalorieApp(ctk.CTk):
             window.hide()
 
         self.current_window = None
-        self.switch_window("Nutrition")
+        self.switch_window("Profile")
+        
 
     def switch_window(self, name):
         if self.current_window:
@@ -50,3 +63,6 @@ class CalorieApp(ctk.CTk):
 
         self.current_window = name
         self.windows[name].show()
+        
+    
+    

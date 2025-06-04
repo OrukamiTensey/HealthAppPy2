@@ -30,9 +30,33 @@
     <Compile Include="main.py" />
     <Compile Include="nutrition.py" />
     <Compile Include="nutrition_window.py" />
+    <Compile Include="profile_window.py" />
     <Compile Include="registration.py" />
+    <Compile Include="reg_window.py" />
     <Compile Include="sidebar.py" />
     <Compile Include="user.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="icons\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="icons\activity_icon.png" />
+    <Content Include="icons\add.png" />
+    <Content Include="icons\calorie_icon.png" />
+    <Content Include="icons\cancel.png" />
+    <Content Include="icons\confirmation.png" />
+    <Content Include="icons\help_icon.png" />
+    <Content Include="icons\logout.png" />
+    <Content Include="icons\mechanic.png" />
+    <Content Include="icons\no-sport.png" />
+    <Content Include="icons\nutrition_icon.png" />
+    <Content Include="icons\profile.png" />
+    <Content Include="icons\profile_icon.png" />
+    <Content Include="icons\reg_win_icon.png" />
+    <Content Include="icons\sedentary.png" />
+    <Content Include="icons\sport.png" />
+    <Content Include="icons\sports.png" />
+    <Content Include="icons\teacher.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

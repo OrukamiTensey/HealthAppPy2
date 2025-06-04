@@ -9,8 +9,8 @@ class SidebarButton(ctk.CTkButton):
             width=150,
             height=32,
             font=("Inter", 15),
-            fg_color="#8D8989",
-            hover_color="#665E5E",
+            fg_color="#C8C8C8",
+            hover_color="#7D7676",
             text_color="black",
             corner_radius=0,
             anchor="w",
@@ -36,7 +36,7 @@ class Button_Icon(ctk.CTkImage):
 class Sidebar(ctk.CTkFrame):
     def __init__(self, master, switch_callback):
         """Initializes the sidebar with navigation buttons. """
-        super().__init__(master, fg_color="#c4c4c4", width=200, height=480, corner_radius=0)
+        super().__init__(master, fg_color="#C8C8C8", width=200, height=480, corner_radius=0)
         self.switch_callback = switch_callback
         self.place(x=0, y=0)
 
@@ -58,15 +58,15 @@ class Sidebar(ctk.CTkFrame):
 
         # Button list with corresponding commands and icons
         self.buttons = []
-        self.buttons.append(SidebarButton(self, text="Profile", image=profile_icon, command=lambda: switch_callback("Nutrition")))
+        self.buttons.append(SidebarButton(self, text="Profile", image=profile_icon, command=lambda: switch_callback("Profile")))
         self.buttons.append(SidebarButton(self, text="Nutrition", image=nutrition_icon, command=lambda: switch_callback("Nutrition")))
         self.buttons.append(SidebarButton(self, text="Activity", image=activity_icon, command=lambda: switch_callback("Nutrition")))
         self.buttons.append(SidebarButton(self, text="CalorieC", image=calorie_counting_icon, command=lambda: switch_callback("BMI")))
-        self.buttons.append(SidebarButton(self, text="Reg_Win", image=reg_win_icon, command=lambda: switch_callback("Nutrition")))
+        self.buttons.append(SidebarButton(self, text="Reg_Win", image=reg_win_icon, command=lambda: switch_callback("Registration")))
         self.buttons.append(SidebarButton(self, text="Help", image=help_icon, command=lambda: switch_callback("Nutrition")))
 
         # Place the buttons vertically with spacing
         y_offset = 50
         for button in self.buttons:
             button.place(x=25, y=y_offset)
-            y_offset += 41
+            y_offset += 60

@@ -223,8 +223,7 @@ class DBControl:
         return received_tuple
 
     @staticmethod
-    def update_data(file_name, table_name, columns_array, values_array, object_condition=""):
-        # Update specific data in the table by setting names of columns and their values, according to condition
+    def update_data(file_name, table_name, columns_array, values_array, is_image = False, data_tuple = None, object_condition=""):
         sql = f"UPDATE {table_name} SET "
 
         for i, column in enumerate(columns_array):
@@ -239,9 +238,13 @@ class DBControl:
         try:
             conn = sqlite3.connect(file_name)
             cursor = conn.cursor()
-            cursor.execute(sql)
+
+            if is_image:
+                cursor.execute(sql, data_tuple)
+            else:
+                cursor.execute(sql)
+
             conn.commit()
-            #print("Email updated successfully.")
         except sqlite3.Error as e:
             print(f"Error updating email: {e}")
         finally:
