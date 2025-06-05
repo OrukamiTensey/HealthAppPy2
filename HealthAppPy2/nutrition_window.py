@@ -17,12 +17,6 @@ class Func_Button(ctk.CTkButton):
             **kwargs
         )
 
-    @classmethod
-    def create(cls, root, new_text, x_position, y_position, **kwargs):
-        btn = cls(master = root, text = new_text, **kwargs)
-        btn.place(x = x_position, y = y_position)
-        return btn
-
 class Enter(ctk.CTkEntry):
     def __init__(self, master, **kwargs):
         super().__init__(
@@ -37,26 +31,6 @@ class Enter(ctk.CTkEntry):
             border_width = 0,
             **kwargs
         )
-
-    @classmethod
-    def create(cls, root, new_text, x_position, y_position, **kwargs):
-        enter = cls(master = root, placeholder_text = new_text, **kwargs)
-        enter.place(x = x_position, y = y_position)
-        return enter
-
-class Button_Icon(ctk.CTkImage):
-    def __init__(self, image_link, width, height, **kwargs):
-        super().__init__(
-            light_image = Image.open(image_link),
-            dark_image = Image.open(image_link),
-            size = (width, height),
-            **kwargs
-        )
-
-    @classmethod
-    def create(cls, link, image_width = 35, image_height = 19, **kwargs):
-        icon = cls(image_link = link, width = image_width, height = image_height, **kwargs)
-        return icon
 
 class NutritionWindow(ctk.CTkFrame):
     def __init__(self, master, user):
@@ -80,7 +54,6 @@ class NutritionWindow(ctk.CTkFrame):
         self.create_header()
         self.create_main_content()
         self.create_image_frame()
-        self.create_removal_section()
 
     def create_header(self):
         header_frame = ctk.CTkFrame(self, fg_color="#C75858", corner_radius=0, height=50)
@@ -92,31 +65,51 @@ class NutritionWindow(ctk.CTkFrame):
             text_color = "white",
             font = ("Inter", 20, "bold")
         )
-        header_label.place(x = 253, y = 13)
+        header_label.pack(pady=10)
 
     def create_main_content(self):
-        self.content_frame = ctk.CTkFrame(self, width=740, height=490, fg_color="#E6E4E4", corner_radius=0)
-        self.content_frame.place(x=30, y=78)
-        self.add_button = Func_Button.create(self.content_frame, new_text="Add", x_position=160, y_position=60,
-                                             fg_color="#58C75C", hover_color="#3CAE40", corner_radius=7,
-                                             command=self.add_product)
-        self.mass_enter = Enter.create(self.content_frame, new_text="Enter grams", x_position=0, y_position=60,
-                                       corner_radius=7)
+        self.content_frame = ctk.CTkFrame(self, fg_color="#E6E4E4", corner_radius=0)
+        self.content_frame.pack(fill="both", expand=True, padx=30, pady=30)
+        self.content_frame.grid_columnconfigure(0, weight=1)
+        self.content_frame.grid_columnconfigure(1, weight=0)
+        self.content_frame.grid_rowconfigure(3, weight=1)
+
+        style = ttk.Style()
+        style.configure("Custom.TCombobox",
+                        padding=(10, 12, 10, 12),  # (left, top, right, bottom)
+                        font=("Inter", 15))
 
         table_values = self.nutrition_functions.get_all_products_list()
 
-        self.combo = ttk.Combobox(self.content_frame, values=table_values, height=4, font = ("Inter", 15))
+        self.combo = ttk.Combobox(self.content_frame, values=table_values, height=4, font = ("Inter", 15), style="Custom.TCombobox")
         self.combo.set("Select product")
         self.combo.bind("<<ComboboxSelected>>", self.on_product_selected)
-        self.combo.place(x=0, y=0, width=610, height=50)
+        self.combo.grid(row=0, column=0, sticky="ew", columnspan=2, pady=(0, 10))
 
-        # ------------------   Making table in the Content Frame   ------------------
-        table_frame = tk.Frame(self.content_frame, width=740, height=360, background="#E6E4E4")
-        # table_frame.place(x = 0, y = 106)
-        table_frame.grid(row=0, column=0, pady=(130, 0), sticky="nsew")
+        add_frame = ctk.CTkFrame(self.content_frame, fg_color="#E6E4E4")
+        add_frame.grid(row=1, column=0, sticky="w", pady=(0, 30))
 
-        self.content_frame.grid_rowconfigure(0, weight=1)
-        self.content_frame.grid_columnconfigure(0, weight=1)
+        self.mass_enter = Enter(add_frame, placeholder_text="Enter grams", corner_radius=7)
+        self.mass_enter.pack(side="left", padx=(0, 10))
+
+        self.add_button = Func_Button(add_frame, text="Add", fg_color="#58C75C", hover_color="#3CAE40", corner_radius=7, command=self.add_product)
+        self.add_button.pack(side="left")
+
+        remove_frame = ctk.CTkFrame(self.content_frame, fg_color="#E6E4E4")
+        remove_frame.grid(row=1, column=1, sticky="e", pady=(0, 30))
+
+        self.remove_button = Func_Button(remove_frame, text="Remove", fg_color="#C75858", hover_color="#A34848", corner_radius=7, command = self.remove_product)
+        self.remove_button.pack(side="left", padx=(0, 10))
+
+        self.remove_enter = Enter(remove_frame, placeholder_text="Enter id", corner_radius=7)
+        self.remove_enter.pack(side="left")
+
+        self.create_table()
+
+    # ------------------   Making table in the Content Frame   ------------------
+    def create_table(self):
+        table_frame = tk.Frame(self.content_frame, background="#E6E4E4")
+        table_frame.grid(row=3, column=0, sticky="nsew", columnspan=3)
 
         nutrition_columns_names = [
             ("id", "ID", 17, "center"),
@@ -128,16 +121,11 @@ class NutritionWindow(ctk.CTkFrame):
             ("kcal", "Kcal", 80, "center")
         ]
 
-        self.tree = ttk.Treeview(table_frame, height=17, columns=[array[0] for array in nutrition_columns_names],
-                                 show="headings")
+        self.tree = ttk.Treeview(table_frame, height=17, columns=[array[0] for array in nutrition_columns_names], show="headings")
 
         for col_var, col_name, col_width, col_anchor in nutrition_columns_names:
             self.tree.heading(col_var, text=col_name)
             self.tree.column(col_var, width=col_width, anchor=col_anchor)
-
-        start_rows = self.nutrition_functions.show_today_consumption()
-        for row in start_rows:
-            self.insert_row_to_table(list(row))
 
         vsb = ttk.Scrollbar(table_frame, orient="vertical", command=self.tree.yview)
         self.tree.configure(yscrollcommand=vsb.set)
@@ -148,20 +136,18 @@ class NutritionWindow(ctk.CTkFrame):
         table_frame.grid_rowconfigure(0, weight=1)
         table_frame.grid_columnconfigure(0, weight=1)
 
+        start_rows = self.nutrition_functions.show_today_consumption()
+        for row in start_rows:
+            self.insert_row_to_table(list(row))
+
     # ------------------   Making image holder for chosen product   ------------------
     def create_image_frame(self):
         self.image_frame = ctk.CTkFrame(self.content_frame, width=100, height=100, fg_color="#E6E4E4", corner_radius=7)
-        self.image_frame.place(x=640, y=0)
+        # self.image_frame.place(x=640, y=0)
+        self.image_frame.grid(row=0, column=2, sticky="ne", padx=(30, 0), rowspan=2, pady=(0, 30))
 
         image_blob = self.nutrition_functions.get_product_image("Select product")
         self.set_image(image_blob)
-
-    # ------------------   Making a button for specific product deletion   ------------------
-    def create_removal_section(self):
-        self.remove_enter = Enter.create(self.content_frame, new_text="Enter id", x_position=460, y_position=60,
-                                         corner_radius=7)
-        self.remove_button = Func_Button.create(self.content_frame, new_text="Remove", x_position=350, y_position=60,
-                                                fg_color="#C75858", hover_color="#A34848", corner_radius=7, command = self.remove_product)
          
     # ------------------   Functional methods   ------------------
     def on_product_selected(self, event):
@@ -189,10 +175,7 @@ class NutritionWindow(ctk.CTkFrame):
         
     def is_number(self, value):
         try:
-            if float(value) == 0:
-                return False
-            else:
-                return True
+            return float(value) != 0
         except ValueError:
             return False
 
