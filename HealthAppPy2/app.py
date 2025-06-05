@@ -22,19 +22,19 @@ class App(ctk.CTk):
         user = self.reg.load_or_register_user()
         
         if user == 0:
-            # Якщо користувача немає – показуємо вікно реєстрації
+            
             self.windows = {
                 "Registration": RegistrationWindow(self, 0)
             }
 
-            # Ховаємо sidebar поки користувач не зареєструється
+            
             self.sidebar.pack_forget()
 
             self.current_window = "Registration"
             self.windows["Registration"].place(x=0, y=0, relwidth=1, relheight=1)
             self.windows["Registration"].show()
             return
-            
+        
 
         self.calorie_counter = CalorieCounting(user)
 
@@ -60,9 +60,12 @@ class App(ctk.CTk):
         # Updating norm in db
         if name == "BMI":
             self.calorie_counter.update_norm_if_needed("Health_database.db")
+            
 
         self.current_window = name
         self.windows[name].show()
+        
+        
         
     
     

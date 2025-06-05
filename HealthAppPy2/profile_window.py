@@ -1,4 +1,3 @@
-import statistics
 import tkinter as tk
 from tkinter import ttk
 from turtle import width
@@ -55,7 +54,7 @@ class ProfileWindow(ctk.CTkFrame):
         self.change_frame.place_forget()
         self.activity_frame.place(x=0, y=0)
         
-    def set_avatar_image(self, ax, ay, master):
+    def set_avatar_image(self, ax, ay, master): 
         if self.user.avatar_image:
             try:
                 image = Image.open(io.BytesIO(self.user.avatar_image))
@@ -64,9 +63,23 @@ class ProfileWindow(ctk.CTkFrame):
         else:
             image = Image.open("icons/profile.png")
 
-        image = image.resize((166, 166))
-        ctk_image = ctk.CTkImage(light_image=image, size=(166, 166))
-        self.avatar_label = ctk.CTkLabel(master = master, image=ctk_image, text="")
+        # Зміна розміру
+        size = (166, 166)
+        image = image.resize(size)
+
+        # Створюємо маску — біле коло на чорному фоні
+        mask = Image.new('L', size, 0)
+        draw = ImageDraw.Draw(mask)
+        draw.ellipse((0, 0) + size, fill=255)
+
+        # Применяем маску до альфа-каналу (для прозорості)
+        image.putalpha(mask)
+
+        # Створюємо CTkImage з альфа-каналом
+        ctk_image = ctk.CTkImage(light_image=image, size=size)
+
+        # Виводимо лейбл з аватаром
+        self.avatar_label = ctk.CTkLabel(master=master, image=ctk_image, text="")
         self.avatar_label.image = ctk_image
         self.avatar_label.place(x=ax, y=ay)
     

@@ -100,6 +100,7 @@ class CalorieCounting:
                     file_name=db_name,
                     table_name="CONSUMED",
                     columns_array=["NORM_PROTEINS", "NORM_FATS", "NORM_CARBOHYDRATES", "NORM_KCAL"],
+                    
                     values_array=[norm_protein, norm_fat, norm_carb, norm_calories],
                     object_condition=f"USER = '{self.user.name}' AND DATE = '{current_date}'"
                 )

@@ -28,40 +28,7 @@ class Registration:
         self.db_name = db_name
         self.db = DBControl()
         
-    def register_new_user(self, email, password):
-        print("\n--- Register New User ---")
-        new_user = self.take_new_data
-
-        email = email
-        password = password
-        # name = new_user.name
-        # birth_date = new_user.birth
-        # weight = new_user
-        # height = new_user
-        # sex = new_user
-        # goal = new_user
-        # bjv_mode = new_user
-        # activity_factor = new_user
-
-        avatar_image = base64.b64encode(b'default-avatar').decode("utf-8")
-
-        insert_sql = f"""
-            INSERT INTO USERS (
-                EMAIL, PASSWORD, NAME, AVATAR_IMAGE, BIRTH_DATE,
-                WEIGHT, HEIGHT, SEX, GOAL, BJV_MODE, ACTIVITY_FACTOR
-            ) VALUES (
-                '{email}', '{password}', '{name}', '{avatar_image}', '{birth_date}',
-                {weight}, {height}, '{sex}', '{goal}', '{bjv_mode}', {activity_factor}
-            );
-        """
-
-        try:
-            self.db.insert_data(self.db_name, insert_sql)
-            print("User registered successfully.\n")
-            return User(name, email, password, avatar_image, birth_date, weight, height, sex, goal, activity_factor, bjv_mode)
-        except Exception as e:
-            print(f"Registration failed: {e}")
-            return None
+    
 
     def login_user(self, email, password):
         # Шукаємо користувача в БД
