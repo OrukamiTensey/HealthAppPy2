@@ -64,7 +64,6 @@ class Registration:
             return None
 
     def login_user(self, email, password):
-        # Шукаємо користувача в БД
         user_data = self.db.receive_data(
             self.db_name,
             "USERS",
@@ -76,16 +75,14 @@ class Registration:
             messagebox.showerror("Login Error", "User not found. Please register first.")
             return None
         
-        # Дані користувача - беремо перший рядок
         row = user_data[0]
 
-        stored_password = row[1]  # Припустимо, пароль у другій колонці (після email)
+        stored_password = row[1]
 
         if password != stored_password:
             messagebox.showerror("Login Error", "Incorrect password.")
             return None
 
-        # Створюємо користувача з отриманих даних
         user = User(
             name=row[2],
             email=row[0],
@@ -100,7 +97,6 @@ class Registration:
             bjv_mode=row[9]
         )
 
-        # Записуємо current_user.json
         with open("current_user.json", "w") as file:
             json.dump({"email": user.email}, file, indent=4)
 
@@ -125,7 +121,6 @@ class Registration:
 
                 if result:
                     row = result[0]
-                    # Очікується структура:
                     # EMAIL, PASSWORD, NAME, AVATAR_IMAGE, BIRTH_DATE, WEIGHT, HEIGHT, SEX, GOAL, BJV_MODE, ACTIVITY_FACTOR
                     return User(
                         name=row[2],
