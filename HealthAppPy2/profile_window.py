@@ -153,7 +153,7 @@ class ProfileWindow(ctk.CTkFrame):
 
         # --------- КНОПКА Log out ---------
         logout_image = ctk.CTkImage(
-            light_image=Image.open(r"C:\Users\PC\Downloads\logout.png"),  
+            light_image=Image.open(r"icons\logout.png"),  
             size=(19, 19)
         )
 

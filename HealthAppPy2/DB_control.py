@@ -223,7 +223,7 @@ class DBControl:
         return received_tuple
 
     @staticmethod
-    def update_data(file_name, table_name, columns_array, values_array, is_image = False, data_tuple = None, object_condition=""):
+    def update_data(file_name, table_name, columns_array, values_array, object_condition="", is_image = False, data_tuple = None):
         sql = f"UPDATE {table_name} SET "
 
         for i, column in enumerate(columns_array):
