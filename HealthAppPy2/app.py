@@ -64,8 +64,3 @@ class App(ctk.CTk):
 
         self.current_window = name
         self.windows[name].show()
-        
-        
-        
-    
-    
