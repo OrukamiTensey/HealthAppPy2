@@ -84,7 +84,7 @@ class CalorieCounting:
             file_name=db_name,
             table_name="CONSUMED",
             columns_name="NORM_PROTEINS, NORM_FATS, NORM_CARBOHYDRATES, NORM_KCAL",
-            object_condition=f"USER = '{self.user.name}' AND DATE = '{current_date}'"
+            object_condition=f"USER = '{self.user.email}' AND DATE = '{current_date}'"
         )
 
         if result:
@@ -102,7 +102,7 @@ class CalorieCounting:
                     columns_array=["NORM_PROTEINS", "NORM_FATS", "NORM_CARBOHYDRATES", "NORM_KCAL"],
                     
                     values_array=[norm_protein, norm_fat, norm_carb, norm_calories],
-                    object_condition=f"USER = '{self.user.name}' AND DATE = '{current_date}'"
+                    object_condition=f"USER = '{self.user.email}' AND DATE = '{current_date}'"
                 )
             else:
                 print("[INFO] Norms unchanged - no update required.")
@@ -113,7 +113,7 @@ class CalorieCounting:
                 (USER, DATE, NORM_PROTEINS, NORM_FATS, NORM_CARBOHYDRATES, NORM_KCAL,
                  TOTAL_MASS, TOTAL_PROTEINS, TOTAL_FATS, TOTAL_CARBOHYDRATES, TOTAL_KCAL)
                 VALUES 
-                ('{self.user.name}', '{current_date}', {norm_protein}, {norm_fat}, {norm_carb}, {norm_calories},
+                ('{self.user.email}', '{current_date}', {norm_protein}, {norm_fat}, {norm_carb}, {norm_calories},
                  0, 0, 0, 0, 0);
             """
             DBControl.insert_data(db_name, insert_query)
@@ -124,7 +124,7 @@ class CalorieCounting:
             file_name=db_name,
             table_name="CONSUMED",
             columns_name="*",
-            object_condition=f"USER = '{self.user.name}' AND DATE = '{current_date}'"
+            object_condition=f"USER = '{self.user.email}' AND DATE = '{current_date}'"
         )
         for v in cons:
             print(v)
@@ -145,7 +145,7 @@ class CalorieCounting:
         ]
 
         values = [
-            f"'{self.user.name}'", f"'{current_date}'",
+            f"'{self.user.email}'", f"'{current_date}'",
             0, 0, 0, 0, 0,
             norm_protein, norm_fat, norm_carb, norm_calories
         ]
@@ -161,7 +161,7 @@ class CalorieCounting:
         if target_date is None:
             target_date = date.today().isoformat()
 
-        condition = f"USER = '{self.user.name}' AND DATE = '{target_date}'"
+        condition = f"USER = '{self.user.email}' AND DATE = '{target_date}'"
         columns_name = "SUM(TOTAL_PROTEINS), SUM(TOTAL_FATS), SUM(TOTAL_CARBOHYDRATES), SUM(TOTAL_KCAL)"
         results = DBControl.receive_data(db_name, "CONSUMED", columns_name, condition)
 
