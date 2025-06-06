@@ -26,12 +26,6 @@ class CalorieCounting:
         self.norm_bjv = self.calculate_bjv()
         self.db_name = "Health_database.db"
 
-    def change_user_attribute(self, attr_name, new_value):
-        """Method to change user attribute and recalculate norms"""
-        setattr(self.user, attr_name, new_value)
-        self.norm_calories = self.calculate_total_calories()
-        self.norm_bjv = self.calculate_bjv()
-
     def calculate_bmr(self):
         """Method to calculate Basal Metabolic Rate (BMR)"""
         if self.user.sex == 'M':
