@@ -70,3 +70,5 @@ class Sidebar(ctk.CTkFrame):
         for button in self.buttons:
             button.place(x=25, y=y_offset)
             y_offset += 60
+            
+   
