@@ -26,12 +26,6 @@ class CalorieCounting:
         self.norm_bjv = self.calculate_bjv()
         self.db_name = "Health_database.db"
 
-    def change_user_attribute(self, attr_name, new_value):
-        """Method to change user attribute and recalculate norms"""
-        setattr(self.user, attr_name, new_value)
-        self.norm_calories = self.calculate_total_calories()
-        self.norm_bjv = self.calculate_bjv()
-
     def calculate_bmr(self):
         """Method to calculate Basal Metabolic Rate (BMR)"""
         if self.user.sex == 'M':
@@ -277,17 +271,20 @@ class CalorieCounting:
 
         table_rows = []
         _, _, _, norm_calories = self.get_norm()
+        norm_calories = round(norm_calories)
         days_range = (today - start_date).days + 1
 
         for i in reversed(range(days_range)):
             current_date = start_date + timedelta(days=i)
             date_str = current_date.isoformat()
             _, _, _, consumed_calories = self.get_consumed_nutrition(current_date)
+            consumed_calories = round(consumed_calories)
 
             if consumed_calories == 0:
                 diff_str = "No data"
             else:
                 difference = consumed_calories - norm_calories
+                difference = round(difference)
                 diff_str = f"{'+' if difference >= 0 else ''}{difference}"
 
             table_rows.append((date_str, consumed_calories, norm_calories, diff_str))
