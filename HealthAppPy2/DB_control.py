@@ -221,7 +221,7 @@ class DBControl:
             conn.close()
 
         return received_tuple
-
+    
     @staticmethod
     def update_data(file_name, table_name, columns_array, values_array, object_condition="", is_image = False, data_tuple = None):
         sql = f"UPDATE {table_name} SET "
