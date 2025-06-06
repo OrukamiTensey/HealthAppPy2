@@ -37,7 +37,7 @@ class ProfileWindow(ctk.CTkFrame):
             self.show_change()
         else:
             self.show_statistic()
-
+        
     def show_statistic(self):
         self.change_frame.place_forget()
         self.statistic_frame.place(x=0, y=0) 
@@ -85,8 +85,10 @@ class ProfileWindow(ctk.CTkFrame):
     
     def create_statistic_ui(self):
         
+
         self.statistic_frame = ctk.CTkFrame(self , width=800, height=600, fg_color="#E6E4E4") 
-         
+        self.sex_button_map = {}
+        self.goal_button_map = {}
         # Header
         header_frame = ctk.CTkFrame(self.statistic_frame, width=800, height=50, fg_color="#58C75C", corner_radius=0)
         header_frame.place(x=0, y=0)
@@ -105,17 +107,37 @@ class ProfileWindow(ctk.CTkFrame):
 
         ctk.CTkLabel(
             master=content_frame_1,
-            text="Recorded",
+            text="Recorded:",
             text_color="black",
             font=("Inter", 16)
         ).place(x=10, y=10)
-
+        
         ctk.CTkLabel(
             master=content_frame_1,
-            text="BMI",
+            text="0 day(s)",
+            text_color="black",
+            font=("Inter", 16, "bold")
+        ).place(x=100, y=10)
+        
+        ctk.CTkLabel(
+            master=content_frame_1,
+            text="BMI:",
             text_color="black",
             font=("Inter", 16)
-        ).place(x=150, y=10)
+        ).place(x=210, y=10)
+        
+        # Розрахунок BMI
+        weight = self.user.weight
+        height_cm = self.user.height
+        bmi = weight / ((height_cm / 100) ** 2)
+
+        # Виведення BMI з точністю до 1 знака після коми
+        ctk.CTkLabel(
+            master=content_frame_1,
+            text=f"{bmi:.1f}",
+            text_color="black",
+            font=("Inter", 16, "bold")
+        ).place(x=260, y=10)  
 
         # --------- ДРУГИЙ Content Frame (User Info) ---------
         content_frame_2 = ctk.CTkFrame(self.statistic_frame, width=500, height=350, fg_color="#FFFFFF", corner_radius=7)
@@ -125,7 +147,29 @@ class ProfileWindow(ctk.CTkFrame):
         info_font_bold = ("Inter", 16, "bold")
 
         user_info_labels = ["Email:", "Birth date:", "Weight:", "Height:", "Sex:", "Goal:", "Activity:"]
-        user_info_values = [self.user.email, self.user.birth_date, self.user.weight, self.user.height, self.user.sex, self.user.goal, self.user.activity_factor]
+        if self.user.sex == "F":
+            user_sex_text = "Female"
+        else: 
+            user_sex_text = "Male"
+            
+        if self.user.goal == "L":
+            user_goal_text = "Lose"
+        elif self.user.goal == "G":
+            user_goal_text = "Gain"
+        else:
+            user_goal_text = "Maintain"
+            
+        if self.user.activity_factor == 1.2:
+            activity_text = "Low"
+        elif self.user.activity_factor == 1.375:
+            activity_text = "Under medium"
+        elif self.user.activity_factor == 1.55:
+            activity_text = "Medium"
+        elif self.user.activity_factor == 1.725:
+            activity_text = "Above medium"
+        elif self.user.activity_factor == 1.9:
+            activity_text = "High"
+        user_info_values = [self.user.email, self.user.birth_date, self.user.weight, self.user.height, user_sex_text, user_goal_text, activity_text]
 
         for idx, (label, value) in enumerate(zip(user_info_labels, user_info_values)):
             ctk.CTkLabel(
@@ -415,7 +459,8 @@ class ProfileWindow(ctk.CTkFrame):
                     radio_btn.place(x=x_offset, rely=0.5, anchor="w")
                     label = ctk.CTkLabel(master=parent, text=text, text_color="black")
                     label.place(x=x_offset + 25, rely=0.5, anchor="w")
-
+                    self.sex_button_map[radio_btn] = value
+                    
                     return radio_btn
 
                 radio_vars["Sex:"] = [
@@ -448,7 +493,7 @@ class ProfileWindow(ctk.CTkFrame):
                     radio_btn.place(x=x_offset, rely=0.5, anchor="w")
                     label = ctk.CTkLabel(master=parent, text=text, text_color="black")
                     label.place(x=x_offset + 25, rely=0.5, anchor="w")
-
+                    self.goal_button_map[radio_btn] = value
                     return radio_btn
 
                 radio_vars["Goal:"] = [
@@ -479,6 +524,33 @@ class ProfileWindow(ctk.CTkFrame):
         self.height_slider = height_slider
         self.radio_vars = radio_vars
 
+    def add_photo(self):
+        file_path = filedialog.askopenfilename(
+            title="Choose Profile Image",
+            filetypes=[("Image files", "*.jpg *.png")]
+        )
+    
+        if not file_path:
+            return  # Користувач скасував
+
+        ext = os.path.splitext(file_path)[1].lower()
+        if ext not in ['.jpg', '.png']:
+            messagebox.showerror(" Error", "Please select a .jpg or .png file.")
+            return
+
+        try:
+            # Збереження байтів зображення
+            with open(file_path, 'rb') as file:
+                self.avatar_image_blob = file.read()
+
+            # Відображення у UI
+            image = Image.open(io.BytesIO(self.avatar_image_blob))
+            image = image.resize((166, 166))
+            self.avatar_ctk_image = ctk.CTkImage(light_image=image, size=(166, 166))
+            self.avatar_label.configure(image=self.avatar_ctk_image)
+
+        except Exception as e:
+            messagebox.showerror(" Error", f"Failed to load image: {e}")
 
     def confirm_profile_change(self):
         print("confirmation")
@@ -511,24 +583,27 @@ class ProfileWindow(ctk.CTkFrame):
 
         avatar_blob = getattr(self, 'avatar_image_blob', self.user.avatar_image)
 
+        # --- Стать ---
         sex = ""
         for btn in self.radio_vars["Sex:"]:
             if btn.cget("fg_color") == "#58C75C":
-                sex = btn.cget("text")
+                sex = self.sex_button_map[btn]
                 break
         if not sex:
             sex = self.user.sex
 
+        # --- Ціль ---
         goal = ""
         for btn in self.radio_vars["Goal:"]:
             if btn.cget("fg_color") == "#58C75C":
-                goal = btn.cget("text")
+                goal = self.goal_button_map[btn]
                 break
         if not goal:
             goal = self.user.goal
 
         # Інші параметри:
         activity_factor = self.user.activity_factor
+        
         bjv_mode = self.user.bjv_mode
         email = self.user.email
         password = self.user.password 
@@ -558,7 +633,7 @@ class ProfileWindow(ctk.CTkFrame):
 
             else:
                 # --- Оновлення профілю ---
-                columns = ["NAME", "BIRTH_DATE", "WEIGHT", "HEIGHT", "SEX", "GOAL", "AVATAR_IMAGE"]
+                columns = ["NAME", "BIRTH_DATE", "WEIGHT", "HEIGHT", "SEX", "GOAL", "AVATAR_IMAGE", "ACTIVITY_FACTOR"]
                 values = [
                     f"'{name}'",
                     f"'{birth_date_str}'",
@@ -566,7 +641,8 @@ class ProfileWindow(ctk.CTkFrame):
                     height,
                     f"'{sex}'",
                     f"'{goal}'",
-                    "?"  # для AVATAR_IMAGE – параметризоване значення
+                    "?",
+                    activity_factor
                 ]
                 condition = f"EMAIL = '{email}'"
 
@@ -589,33 +665,6 @@ class ProfileWindow(ctk.CTkFrame):
         python = sys.executable
         os.execl(python, python, *sys.argv)
             
-    def add_photo(self):
-        file_path = filedialog.askopenfilename(
-            title="Choose Profile Image",
-            filetypes=[("Image files", "*.jpg *.png")]
-        )
-    
-        if not file_path:
-            return  # Користувач скасував
-
-        ext = os.path.splitext(file_path)[1].lower()
-        if ext not in ['.jpg', '.png']:
-            messagebox.showerror(" Error", "Please select a .jpg or .png file.")
-            return
-
-        try:
-            # Збереження байтів зображення
-            with open(file_path, 'rb') as file:
-                self.avatar_image_blob = file.read()
-
-            # Відображення у UI
-            image = Image.open(io.BytesIO(self.avatar_image_blob))
-            image = image.resize((166, 166))
-            self.avatar_ctk_image = ctk.CTkImage(light_image=image, size=(166, 166))
-            self.avatar_label.configure(image=self.avatar_ctk_image)
-
-        except Exception as e:
-            messagebox.showerror(" Error", f"Failed to load image: {e}")
             
     
     def update_current_user_email(self, new_email):
@@ -630,10 +679,9 @@ class ProfileWindow(ctk.CTkFrame):
             print(f"Failed to update current_user.json: {e}")
 
     def create_activity_ui(self):
-        
         self.activity_frame = ctk.CTkFrame(self, width=800, height=600, fg_color="#E6E4E4")
-       
-        # --------- ХЕДЕР ---------
+        
+        # Хедер
         header_frame = ctk.CTkFrame(self.activity_frame, width=800, height=50, fg_color="#58C75C", corner_radius=0)
         header_frame.place(x=0, y=0)
 
@@ -645,130 +693,76 @@ class ProfileWindow(ctk.CTkFrame):
         )
         header_label.place(relx=0.5, rely=0.5, anchor="center")
 
-        # --- Type of Work ---
-        type_of_work_frame = ctk.CTkFrame(self.activity_frame, width=260, height=40, fg_color="white")
-        type_of_work_frame.place(relx=0.5, y=70, anchor="n")
+        # Змінні для радіокнопок
+        self.work_var = tk.StringVar(value="")
+        self.sports_var = tk.StringVar(value="")
 
-        type_label = ctk.CTkLabel(
-            master=type_of_work_frame,
-            text="Type of work",
-            font=("Inter", 16, "bold")
-        )
-        type_label.place(relx=0.5, rely=0.5, anchor="center")
+        # Функція для створення групи радіокнопок
+        def create_radio_group(parent, y_position, label_text, options, variable):
+            label_frame = ctk.CTkFrame(parent, width=260, height=40, fg_color="white")
+            label_frame.place(relx=0.5, y=y_position, anchor="n")
 
-        # --- Група радіокнопок для "Type of Work" ---
-        work_var = tk.StringVar(value="")
-
-        work_icons = [
-            ctk.CTkImage(light_image=Image.open(r"icons/sedentary.png"), size=(80, 80)),
-            ctk.CTkImage(light_image=Image.open(r"icons/teacher.png"), size=(80, 80)),
-            ctk.CTkImage(light_image=Image.open(r"icons/mechanic.png"), size=(80, 80)),
-            ]
-
-        def create_work_frame(parent, index, var, icon_img, label_text):
-            def on_click(value):
-                var.set(value)
-                for btn in work_radio_buttons:
-                    btn.configure(fg_color="#E9E9E9")
-                work_radio_buttons[index].configure(fg_color="#58C75C")
-
-            frame = ctk.CTkFrame(parent, width=200, height=150, fg_color="white")
-            frame.place(x=70 + index * 220, y=127)
-
-            icon_label = ctk.CTkLabel(master=frame, image=icon_img, text="")
-            icon_label.place(relx=0.5, y=15, anchor="n")
-
-            radio_btn = ctk.CTkButton(
-                master=frame,
-                width=25,
-                height=25,
-                text="",
-                fg_color="#E9E9E9",
-                hover_color="#D0D0D0",
-                command=lambda: on_click(f"Work_{index}"),
-                corner_radius=12.5,
-                border_width=2,
-                border_color="#4A4A4A"
+            label = ctk.CTkLabel(
+                master=label_frame,
+                text=label_text,
+                font=("Inter", 16, "bold")
             )
-            radio_btn.place(x=20, y=115)
+            label.place(relx=0.5, rely=0.5, anchor="center")
 
-            label = ctk.CTkLabel(master=frame, text=label_text, text_color="black", font = ("Inter", 16, "bold"))
-            label.place(x=50, y=115)
+            radio_buttons = []
+            for i, (text, value, icon_path) in enumerate(options):
+                def on_click(val=value, idx=i):
+                    variable.set(val)
+                    for btn in radio_buttons:
+                        btn.configure(fg_color="#E9E9E9")
+                    radio_buttons[idx].configure(fg_color="#58C75C")
 
-            return radio_btn
+                frame = ctk.CTkFrame(parent, width=200, height=150, fg_color="white")
+                frame.place(x=70 + i * 220, y=y_position + 57)
 
-        work_labels = ["    Sedentary", "    Standing", "       Active"]
-        work_radio_buttons = []
+                icon_img = ctk.CTkImage(light_image=Image.open(icon_path), size=(80, 80))
+                icon_label = ctk.CTkLabel(master=frame, image=icon_img, text="")
+                icon_label.place(relx=0.5, y=15, anchor="n")
 
-        for i in range(len(work_icons)):
-            btn = create_work_frame(self.activity_frame, i, work_var, work_icons[i], work_labels[i])
-            work_radio_buttons.append(btn)
+                radio_btn = ctk.CTkButton(
+                    master=frame,
+                    width=25,
+                    height=25,
+                    text="",
+                    fg_color="#E9E9E9",
+                    hover_color="#D0D0D0",
+                    command=on_click,
+                    corner_radius=12.5,
+                    border_width=2,
+                    border_color="#4A4A4A"
+                )
+                radio_btn.place(x=20, y=115)
 
-        # --- Doing Sports ---
-        sports_label_frame = ctk.CTkFrame(self.activity_frame, width=260, height=40, fg_color="white")
-        sports_label_frame.place(relx=0.5, y=290, anchor="n")
+                label = ctk.CTkLabel(master=frame, text=text, text_color="black", font=("Inter", 16, "bold"))
+                label.place(x=50, y=115)
 
-        sports_label = ctk.CTkLabel(
-            master=sports_label_frame,
-            text="Doing sports",
-            font=("Inter", 16, "bold")
-        )
-        sports_label.place(relx=0.5, rely=0.5, anchor="center")
+                radio_buttons.append(radio_btn)
 
-        # --- Група радіокнопок для "Doing Sports" ---
-        sports_var = tk.StringVar(value="")
+        # Опції для "Type of Work"
+        work_options = [
+            ("Sedentary", "Sedentary", "icons/sedentary.png"),
+            ("Standing", "Standing", "icons/teacher.png"),
+            ("Active", "Active", "icons/mechanic.png")
+        ]
+        create_radio_group(self.activity_frame, 70, "Type of work", work_options, self.work_var)
 
-        sports_icons = [
-            ctk.CTkImage(light_image=Image.open(r"icons/no-sport.png"), size=(80, 80)),
-            ctk.CTkImage(light_image=Image.open(r"icons/sports.png"), size=(80, 80)),
-            ctk.CTkImage(light_image=Image.open(r"icons/sport.png"), size=(80, 80)),
-            ]
-        def create_sports_frame(parent, index, var, icon_img, label_text):
-            def on_click(value):
-                var.set(value)
-                for btn in sports_radio_buttons:
-                    btn.configure(fg_color="#E9E9E9")
-                sports_radio_buttons[index].configure(fg_color="#58C75C")
+        # Опції для "Doing Sports"
+        sports_options = [
+            ("No sport", "No sport", "icons/no-sport.png"),
+            ("Light", "Light", "icons/sports.png"),
+            ("Heavy", "Heavy", "icons/sport.png")
+        ]
+        create_radio_group(self.activity_frame, 290, "Doing sports", sports_options, self.sports_var)
 
-            frame = ctk.CTkFrame(parent, width=200, height=150, fg_color="white")
-            frame.place(x=70 + index * 220, y=347)
-
-            # Іконка (зображення)
-            icon_label = ctk.CTkLabel(master=frame, image=icon_img, text="")
-            icon_label.place(relx=0.5, y=15, anchor="n")
-
-            # Кнопка
-            radio_btn = ctk.CTkButton(
-                master=frame,
-                width=25,
-                height=25,
-                text="",
-                fg_color="#E9E9E9",
-                hover_color="#D0D0D0",
-                command=lambda: on_click(f"Sports_{index}"),
-                corner_radius=12.5,
-                border_width=2,
-                border_color="#4A4A4A"
-            )
-            radio_btn.place(x=20, y=115)
-
-            # Текст біля кнопки
-            label = ctk.CTkLabel(master=frame, text=label_text, text_color="black", font = ("Inter", 16, "bold"))
-            label.place(x=50, y=115)
-
-            return radio_btn
-        
-        sports_labels = ["    No sport", "       Light", "       Heavy"]
-        sports_radio_buttons = []
-        for i in range(len(sports_icons)):
-            btn = create_sports_frame(self.activity_frame, i, sports_var, sports_icons[i], sports_labels[i])
-            sports_radio_buttons.append(btn)
-        
-        # --- Кнопка Cancel (зліва) ---
+        # Кнопка Cancel
         def on_cancel():
             if messagebox.askyesno("Cancel editing?", "Cancel editing?"):
                 self.show_change2()
-
 
         cancel_button = ctk.CTkButton(
             master=self.activity_frame,
@@ -784,14 +778,49 @@ class ProfileWindow(ctk.CTkFrame):
         )
         cancel_button.place(x=110, y=520)
 
-        # --- Кнопка Confirm (справа) з іконкою ---
+        # Кнопка Confirm
         confirm_icon = ctk.CTkImage(
-            light_image=Image.open(r"icons/confirmation.png"),
+            light_image=Image.open("icons/confirmation.png"),
             size=(19, 19)
         )
 
+        def get_activity_factor():
+            work = self.work_var.get()
+            sports = self.sports_var.get()
+
+            if work == "Sedentary":
+                if sports == "No sport":
+                    return 1.2
+                elif sports == "Light":
+                    return 1.375
+                elif sports == "Heavy":
+                    return 1.55
+            elif work == "Standing":
+                if sports == "No sport":
+                    return 1.375
+                elif sports == "Light":
+                    return 1.55
+                elif sports == "Heavy":
+                    return 1.725
+            elif work == "Active":
+                if sports == "No sport":
+                    return 1.55
+                elif sports == "Light":
+                    return 1.725
+                elif sports == "Heavy":
+                    return 1.9
+
+            return 1.2  # Значення за замовчуванням
+
         def on_confirm():
             if messagebox.askyesno("Confirm", "Confirm the changes?"):
+                activity_factor = get_activity_factor()
+                print(f"Selected activity factor: {activity_factor}")
+                
+                self.user.activity_factor = activity_factor
+                
+                
+
                 self.show_change2()
 
         confirm_button = ctk.CTkButton(
@@ -799,7 +828,7 @@ class ProfileWindow(ctk.CTkFrame):
             text="         Confirm",
             image=confirm_icon,
             compound="left",
-            anchor="w", 
+            anchor="w",
             width=200,
             height=40,
             corner_radius=7,
@@ -811,9 +840,6 @@ class ProfileWindow(ctk.CTkFrame):
         )
         confirm_button.place(x=510, y=520)
        
-    
-        
-
     
 class TrackSlider:
     def __init__(self, parent, x, y, min_val, max_val, initial, label_text):
