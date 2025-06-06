@@ -175,7 +175,7 @@ class NutritionWindow(ctk.CTkFrame):
         
     def is_number(self, value):
         try:
-            return float(value) != 0
+            return float(value) > 0
         except ValueError:
             return False
 
