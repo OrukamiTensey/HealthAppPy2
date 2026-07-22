@@ -25,11 +25,11 @@
 
 | Головна панель (БЖВ & Калорії) | Щоденник харчування |
 | :---: | :---: |
-| ![BMI Calculator](assets/screenshots/calculator.png) | ![Nutrition](assets/screenshots/nutrition.png) |
+| ![BMI Calculator](HealthAppPy2/assets/screenshots/calculator.png) | ![Nutrition](HealthAppPy2/assets/screenshots/nutrition.png) |
 
 | Профіль користувача | Зміна даних |
 | :---: | :---: |
-| ![Profile](assets/screenshots/profile.png) | ![Statistics](assets/screenshots/enterdata.png) |
+| ![Profile](HealthAppPy2/assets/screenshots/profile.png) | ![Statistics](HealthAppPy2/assets/screenshots/enterdata.png) |
 
 ---
 
